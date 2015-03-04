@@ -27,6 +27,7 @@ package
 			stage.addEventListener(Event.RESIZE, this.onResize);
 
 			GlobalData.root = this;
+			GlobalData.STAGE = stage;
 
 			var _loc2_:String = ExternalInterface.call("function getBrowser(){return navigator.userAgent;}");
 			$.jscall("console.log","浏览器类型   = " + _loc2_);

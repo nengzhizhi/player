@@ -9,6 +9,7 @@ package
 		}
 
 		public static var VIDEOLAYER:Sprite;
+		public static var STAGE:stage;
 
 		public static var root:Player;
 	}
