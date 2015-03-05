@@ -10,6 +10,20 @@ package cc.hl.model.video.base {
 		protected var _vtimems:Array;
 
 
+		public function VideoInfo(videoId:String, videoType:String){
+			this._vid = videoId;
+			this._type = videoType;
+		}
+
+
+		/**
+		 * 载入视频信息。
+		 * 需要重载
+		**/
+		protected function load():void{
+			return;
+		}
+
 		/**
 		 * 载入指定的partNetStream需要的VideoInfo,获得videoInfo后让partNetStream回调
 		 * @param f	partNetStream的回调函数，从获取的videoInfo中载入视频
@@ -17,6 +31,10 @@ package cc.hl.model.video.base {
 		 * @param startTime
 		 * @return 空
 		**/
+		public function getPartVideoInfo(f:Function, index:int, startTime:Number=0):void{
+			return;
+		}
+		/*
 		public function getPartVideoInfo(f:Function, index:int, startTime:Number=0):void{
 			if(index >= this._urlArray.length){
 				$.jscall("console.log", "getPartVideoInfo参数错误");
@@ -37,5 +55,6 @@ package cc.hl.model.video.base {
 			var partVideoInfo:PartVideoInfo = new PartVideoInfo();
 			f(partVideoInfo);
 		}
+		*/
 	}
 }
