@@ -49,6 +49,7 @@ package cc.hl.view.video {
 		 * @return 空
 		**/
 		private function load(index:int, startTime:Number, play:Boolean=false):void{
+
 			if(index >=0 && index < this._videoInfo.count){
 				if(this.currentLoad != index){
 					if(this.currentLoad != -1){ //当前有正在载入的partNetStream停止载入
@@ -67,20 +68,59 @@ package cc.hl.view.video {
 
 				if(startTime <= 1){
 					this._videoInfo.getPartVideoInfo(function (arg1:PartVideoInfo):void{
-							ns.load(arg1, play, startTime);
-						}, index, 0);
+						ns.load(arg1, play, startTime);
+					}, index, 0);
 				}
 				else{
 					if(this._videoInfo.useSecond){ //根据时间查找
-
+						this._videoInfo.getPartVideoInfo(function (arg1:PartVideoInfo):void{
+							ns.load(arg1, play, startTime);
+						}, index, startTime);
 					}
 					else{ // 根据文件位置查找
+						if (ns.canSearchByte()) {
 
+						}
+						else{
+
+						}
 					}
 				}
 			}
 		}
 
+
+		private function switchNs(index:int, startTime:Number=0):void{
+			if(index >= this._videoInfo.count){
+				return;
+			}
+
+			if(this.currentPlay != index){
+				if(this.currentPlay != -1){
+				}
+			}
+
+			var partNetStream:PartNetStream = this.nss[index];
+			startTime = partNetStream.getRealSeekTime(startTime);
+
+			if(this._videoInfo.disableSeekJump){
+				if(partNetStream.ready){ //全部载入成功可以自由缓存
+
+				} else { //否则从头开始播放
+					this.load(index, 0, _playing);
+				}
+			} else {
+				if(partNetStream.canSeek(startTime)){
+					partNetStream.seek(startTime);
+
+					if(this._playing){
+						partNetStream.resume();
+					}
+				} else {
+					this.load(index, startTime, this._playing);
+				}
+			}
+		}
 
 
 		/**

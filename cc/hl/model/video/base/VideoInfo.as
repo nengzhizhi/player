@@ -1,11 +1,17 @@
-package cc.hl.model.video.base {
+﻿package cc.hl.model.video.base {
 	
-	public class VideoInfo{
+	import flash.events.*;
+	import flash.utils.*;
+	import util.*;
+	import cc.hl.model.video.interfaces.*;
+	
+	public class VideoInfo extends EventDispatcher implements IVideoInfo{
 
 		protected var _vid:String;
 		protected var _type:String; //视频源类型
 		protected var _fileType:String; //视频文件类型flv或者mp4
 		protected var _useSecond:Boolean;//
+		protected var _startParamName:String = "start";
 		protected var _urlArray:Array;
 		protected var _vtimems:Array;
 
@@ -34,27 +40,21 @@ package cc.hl.model.video.base {
 		public function getPartVideoInfo(f:Function, index:int, startTime:Number=0):void{
 			return;
 		}
-		/*
-		public function getPartVideoInfo(f:Function, index:int, startTime:Number=0):void{
-			if(index >= this._urlArray.length){
-				$.jscall("console.log", "getPartVideoInfo参数错误");
-				index = 0;
-			}
 
-			var partVideoUrl:String = this._urlArray[index];
-			var partVideoTime:String = this._vtimems[index + 1] / 1000;
-
-			if(this._useSecond && (partVideoTime - startTime) < 10){
-				startTime = partVideoTime - 10;
-			}
-
-			if(startTime > 0){
-				partVideoUrl = Util.addUrlParam(partVideoUrl, "start", int(startTime));
-			}
-
-			var partVideoInfo:PartVideoInfo = new PartVideoInfo();
-			f(partVideoInfo);
+		public function get vid():String{
+			return this._vid;
 		}
-		*/
+
+		public function get vtimes():Array{
+			return this._vtimems;
+		}
+
+		public function get urlArray():Array{
+			return this._urlArray;
+		}
+
+		public function get useSecond():Boolean{
+			return this._useSecond;
+		}
 	}
 }

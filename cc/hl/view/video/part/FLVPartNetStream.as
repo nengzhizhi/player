@@ -74,5 +74,25 @@ package cc.hl.view.video.part {
 				this._filesize = (this._meta.filesize) || (this._meta.keyframes.filepositions.slice(-1)[0]);
 			}
 		}
+
+		/**
+		 * 定位到最接近的关键帧位置
+		 * @param byteToSearch	文件定位的位置
+		 * @return 邻近关键帧的索引号
+		**/
+		override public function searchByte(byteToSearch:Number):int{
+			var index:int;
+
+			if(canSearchByte()){
+				if(this._meta.keyframes){
+					index = Util.bsearch(this._meta.keyframes.times, byteToSearch + this._startOffset);
+					if(index != -1){
+						return this._meta.keyframes.filepositions[(index - 1)];
+					}
+				}
+			}
+
+			return 0;
+		}
 	}
 }

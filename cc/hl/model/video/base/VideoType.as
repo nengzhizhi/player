@@ -1,4 +1,4 @@
-package cc.hl.model.base {
+﻿package cc.hl.model.video.base {
 
     public class VideoType {
 

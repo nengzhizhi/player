@@ -29,7 +29,6 @@ package cc.hl.view.video.part {
 			return (this._ready);
 		}
 
-
 		protected function onStatus(arg1:NetStatusEvent):void{
 			switch (arg1.info.code){
 				case "NetStream.Play.Start":
@@ -104,5 +103,18 @@ package cc.hl.view.video.part {
 				super.soundTransform = arg1;
 			}
 		}
+
+		public function canSearchByte():Boolean{
+			return this._ready || this._meta;
+		}
+
+		public function searchByte(_arg1:Number):int{
+			throw (new Error((this.toString() + " need override 'searchByte'!")));
+		}		
+
+		protected function onMetaData(_arg1:Object):void{
+			throw (new Error((this.toString() + " need override 'onMetaData'!")));
+		}
+
 	}
 }
