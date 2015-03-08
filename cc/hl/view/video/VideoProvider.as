@@ -35,7 +35,7 @@ package cc.hl.view.video {
 
 		/**
 		 *
-		 * 获取当前码流，如果是点播可能存在多个，直播只有一个。子类需要重载
+		 * 获取当前NetStream，如果是点播可能存在多个，直播只有一个。子类需要重载
 		 * @return	NetStream
 		 *
 		**/
@@ -137,7 +137,7 @@ package cc.hl.view.video {
 
 
 		/**
-		 * 开始载入视频流
+		 * 开始载入视频流，需要重载
 		 * @param startTime:开始播放的时间，如果是直播值为0
 		 */
 		public function start(startTime:Number=0):void{
@@ -159,5 +159,11 @@ package cc.hl.view.video {
 				this.ns.pause();
 			}
 		}
+
+		public function get time():Number{
+			return (0);
+		}
+		public function set time(_arg1:Number):void{
+		}		
 	}
 }

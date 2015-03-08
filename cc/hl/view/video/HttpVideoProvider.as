@@ -12,6 +12,7 @@ package cc.hl.view.video {
 		private var nss:Vector.<PartNetStream>;
 		private var currentPlay:int = -1; //当前正在播放的partNetStream的索引号
 		private var currentLoad:int = -1; //当前载入的partNetStream的索引号
+		private var checkTimer:Timer;
 
 		public function HttpVideoProvider(arg1:VideoInfo){
 			super(arg1);
@@ -33,12 +34,28 @@ package cc.hl.view.video {
 		}
 
 		/**
+		 * 重载获取当前NetStream的函数，直播只有一个，点播有多个
+		**/
+		override protected function get ns(){
+			return (this.nss[this.currentPlay]);
+		}
+
+		override protected function onPlayEnd(event:Event):void{
+			var nextIndex = this.currentPlay + 1;
+			if(nextIndex == this._videoInfo .count){
+				dispatchEvent(new Event("VIDEOPROVIDER_PLAY_END"));
+			} else {
+				this.switchNs(nextIndex);
+			}
+		}
+
+		/**
 		 * 开始播放视频源
 		 * @param	startTime	点播开始的时间
 		 */
-
 		override public function start(startTime:Number=0):void{
-
+			this.time = startTime;
+			this.checkTimer.start();
 		}
 
 		/**
@@ -89,15 +106,32 @@ package cc.hl.view.video {
 			}
 		}
 
-
+		/**
+		 * 切换PartNetStream，并定位时间
+		**/
 		private function switchNs(index:int, startTime:Number=0):void{
 			if(index >= this._videoInfo.count){
 				return;
 			}
 
 			if(this.currentPlay != index){
+				//停止当前正在播放码流
 				if(this.currentPlay != -1){
+					if (this.nss[this.currentPlay].fullReady){
+						this.nss[this.currentPlay].seek(0);
+					}
+					this.nss[this.currentPlay].pause();
 				}
+
+				this.currentPlay = index;
+
+				this.playOffset = 0;
+				for(var i:int = 0;i <= index; i++){
+					this.playOffset = this.playOffset + (this._videoInfo.vtimes[i] / 1000);
+				}
+
+				this._video.attachStream(this.nss[index]);
+				volume = this._volume;
 			}
 
 			var partNetStream:PartNetStream = this.nss[index];
@@ -105,7 +139,7 @@ package cc.hl.view.video {
 
 			if(this._videoInfo.disableSeekJump){
 				if(partNetStream.ready){ //全部载入成功可以自由缓存
-
+					partNetStream.seek(startTime);
 				} else { //否则从头开始播放
 					this.load(index, 0, _playing);
 				}
@@ -126,10 +160,77 @@ package cc.hl.view.video {
 		/**
 		 *  根据缓存池状态判断是否载入下一段流
 		 *
-		 */
-
+		**/
 		private function checkLoad():void{
+			if( this._isInit){
+				this.clearMemory();
+				//当前分段视频已载入，并且缓存池有空间或者是当前载入的就是当前播放的分段视频。
+				if(this.nss[this.currentLoad].bufferFinish 
+					&& (System.totalMemory < GlobalData.MAX_USE_MEMORY_ARRAY[PlayerConfig.getInstance().max_use_memory_level] || this.currentLoad == this.currentPlay)){
+						this.load(this.currentLoad + 1);
+				}
+			}
+		}
 
+		private function clearMemory():void {
+			var temp:int;
+			var indexArray:Array;
+			var useMemoryLevel = GlobalData.MAX_USE_MEMORY_ARRAY[PlayerConfig.getInstance().max_use_memory_level];
+			if(System.totalMemory > useMemoryLevel){
+				indexArray = [];
+				for(var i:int = 0; i < this._videoInfo.count; i++){
+					if((this.nss[i].ready && (i != this.currentLoad) && (i != this.currentPlay) && (i != this.currentPlay + 1) && (i != this.currentPlay - 1)){
+						indexArray.push(i);
+					}
+				}
+
+				indexArray.sort(this.comparePart);
+				for(var i:int = 0; i < indexArray.length; i++){
+					temp = indexArray[i];
+					if(this.currentPlay > temp || this.currentLoad < temp){
+						this.nss[temp].close();
+						if(System.totalMemory < useMemoryLevel){
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		private function comparePart(arg1:int, arg2:int):int {
+			if(this.nss[arg1].fullReady != this.nss[arg2].fullReady) {
+				//根据分段视频的载入情况做排序，未载入完成的优先释放
+				if(!this.nss[arg1].fullReady){
+					return (-1);
+				}
+				return 1;
+			}
+
+			if(arg1 < arg2){
+				if(arg1 > this.currentPlay){
+					return 1;
+				}
+				return (-1);
+			}
+
+			if(arg2 > this.currentPlay){
+				return (-1);
+			}
+			return 1;
+		}
+
+		override public function get time():Number{
+			return ((this.playOffset + this.nss[this.currentPlay].time));
+		}
+
+		override public function set time(t:Number):void{
+			if(this._videoInfo.count == 1){
+				this.switchNs(0, int(t));
+			}
+			else{
+				var index = this._videoInfo.getIndexOfPosition(int(t));
+				this.switchNs(index, int(t));
+			}
 		}
 	}
 }
