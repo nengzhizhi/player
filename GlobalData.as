@@ -1,6 +1,6 @@
-package
+﻿package
 {
-	import flash.display.Sprite;
+	import flash.display.*;
 
 	public class GlobalData extends Object
 	{
@@ -9,13 +9,13 @@ package
 		}
 
 		public static var VIDEOLAYER:Sprite;
-		public static var STAGE:stage;
+		public static var STAGE:Stage;
 
 		public static var root:Player;
 
 		public static const MAX_USE_MEMORY_ARRAY:Array = [
-														104857600//100M, 
-														209715200//200M, 
+														104857600,//100M
+														209715200,//200M, 
 														0x19000000, 
 														int.MAX_VALUE//4G
 													];//最大内存

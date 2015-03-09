@@ -1,5 +1,12 @@
-package cc.hl.view.video {
-
+﻿package cc.hl.view.video {
+	import flash.geom.*;
+    import flash.events.*;
+    import flash.display.*;
+	import flash.net.*;
+	import flash.media.*;
+	
+	import cc.hl.model.video.base.*;
+	
 	import util.*;
 
 	/**
@@ -14,9 +21,12 @@ package cc.hl.view.video {
 		protected var _video;//Video类或者是stage.stageVideos
 		protected var _useStageVideo:Boolean;//是否使用stage video做加速
 		protected var _videoInfo:VideoInfo;
+		protected var _isInit:Boolean = false;
 		protected var _width:Number = 0;
 		protected var _height:Number = 0;
 		protected var _ratioType:int = 0;//当前video的长宽比
+        protected var _volume:Number = 100;
+        protected var _volumeBak:Number = 100;		
 		protected var _playing:Boolean;
 
 
@@ -28,10 +38,29 @@ package cc.hl.view.video {
 			this._video.smoothing = true;
 			addChild(this._video);
 
-			GlobalData.STAGE.addEventListener("stageVideoAvailability", this.onStageVideoAvailability);
+			//GlobalData.STAGE.addEventListener("stageVideoAvailability", this.onStageVideoAvailability);
 		}
 
+		protected function onNsReady(event:Event):void{
+			if (!this._isInit) {
+				this._isInit = true;
+				this._video.attachNetStream(this.ns);
+			}
+		}
 
+		protected function onPlayEnd(event:Event):void{
+			dispatchEvent(new Event("VIDEO_PROVIDER_PLAY_END"));
+		}
+		/**
+		 *
+		 * 当stage video 可用时切换video
+		 *
+		**/
+		protected function onStageVideoAvailability(_arg1):void{
+			//$.jscall("console.log","hardware accelerate availability: "+_arg1.availability);
+
+			//this.switchVideo(_arg1.availability == "available");
+		}
 
 		/**
 		 *
@@ -39,19 +68,8 @@ package cc.hl.view.video {
 		 * @return	NetStream
 		 *
 		**/
-		protected function get ns():NetStream(){
+		protected function get ns():NetStream{
 			return (null);
-		}
-
-
-		/**
-		 *
-		 * 当stage video 可用时切换video
-		 *
-		**/
-		protected function onStageVideoAvailability(_arg1):void{
-			$.jscall("console.log","hardware accelerate availability: "+_arg1.availability);
-			this.switchVideo(_arg1.availability == "available");
 		}
 
 		/**
@@ -76,7 +94,6 @@ package cc.hl.view.video {
 						this._video.clear();
 						this._video = null;
 					}
-					//FIXME 修改此处 支持多机位
 					this._video = GlobalData.STAGE.stageVideos[0];
 					this._video.attachNetStream(this.ns);
 				}
@@ -90,13 +107,6 @@ package cc.hl.view.video {
 
 				this.resize(this._width, this._height);
 			}
-		}
-
-
-		public function resize(_arg1:Number, _arg2:Number):void{
-			this._width = _arg1;
-			this._height = _arg2;
-			this.setVideoRatio(this._ratioType);
 		}
 
 		public function setVideoRatio(ratioType:int):void{
@@ -135,6 +145,12 @@ package cc.hl.view.video {
 			}
 		}
 
+		public function toggleSilent(arg1:Boolean):void{
+			if(arg1){
+				this._volumeBak = ((this._volume == 0) ? 50 : this._volume);
+				this.volume
+			}
+		}
 
 		/**
 		 * 开始载入视频流，需要重载
@@ -142,7 +158,14 @@ package cc.hl.view.video {
 		 */
 		public function start(startTime:Number=0):void{
 		}
-
+		public function getVideoInfo():String{
+			return (null);
+		}
+		public function resize(w:Number, h:Number):void{
+			this._width = w;
+			this._height = h;
+			this.setVideoRatio(this._ratioType);
+		}
 		public function get playing():Boolean{
 			return this._playing;
 		}
@@ -160,10 +183,31 @@ package cc.hl.view.video {
 			}
 		}
 
+		public function get volume():Number{
+			return this._volume;
+		}
+		public function set volume(arg1:Number):void{
+			this._volume = arg1;
+			this.ns.soundTransform = new SoundTransform(this._volume / 100);
+		}
+
 		public function get time():Number{
 			return (0);
 		}
 		public function set time(_arg1:Number):void{
-		}		
+		}
+		public function get streamTime():Number{
+			return 0;
+		}
+		public function get buffPercent():Number{
+			return 0;
+		}
+		public function get buffering():Boolean{
+			return (false);
+		}
+		public function get videoLength():Number{
+			return 0;
+		}
+
 	}
 }

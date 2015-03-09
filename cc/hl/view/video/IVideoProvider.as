@@ -1,4 +1,4 @@
-package cc.hl.view.video {
+﻿package cc.hl.view.video {
 	
 	/**
 	 *
@@ -17,14 +17,17 @@ package cc.hl.view.video {
 		 *
 		**/
 		function start(startTime:Number=0):void;
+		function getVideoInfo():String;
+		function resize(w:Number, h:Number):void;
+
 
 		function get playing():Boolean;
 		function set playing(state:Boolean):void;
 		function get volume():Number;
-		function set volume(state:Boolean):void;
+		function set volume(state:Number):void;
 		function get time():Number;
 		function set time(t:Number):void;
-		function get buffTime():Number;
+		function get streamTime():Number;
 		function get buffPercent():Number;
 		function get buffering():Boolean;
 		function get videoLength():Number;

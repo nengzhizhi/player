@@ -27,7 +27,8 @@ package cc.hl.view.video.part {
 		protected var expectStartTime:Number = 0;
 		protected var _meta:Object;
 		protected var _buffering:Boolean = false; //分段视频的预分配缓存池是否已填满
-		protected var _bufferFinish:Boolean = false; // 分段视频全部载入
+		//protected var _bufferFinish:Boolean = false; // 分段视频全部载入
+		protected var _streamFinish:Boolean = false;
 		protected var _playFinish:Boolean = false;
 		protected var _partVideoInfo:PartVideoInfo; //子码流信息
 		protected var _ready:Boolean = false; // 码流是否全部载入
@@ -47,7 +48,11 @@ package cc.hl.view.video.part {
 		}
 
 		public function get fullReady():Boolean{
-			return (((((this._ready) && ((this.realStart == 0)))) && (this._bufferFinish)));
+			return (((((this._ready) && ((this.realStart == 0)))) && (this._streamFinish)));
+		}
+
+		public function get streamFinish():Boolean{
+			return this._streamFinish;
 		}
 
 		public function get buffering():Boolean{
@@ -66,11 +71,11 @@ package cc.hl.view.video.part {
 			return this._partVideoInfo.duration || this.meta.duration;
 		}
 
-		public function get bufferSeconds():Number{
+		public function get streamSeconds():Number{
 			if(this._ready){
 				if(this.bytesLoaded > 0 && this.bytesLoaded == this.bytesTotal) {
-					if (!this._bufferFinish){
-						this._bufferFinish = true;
+					if (!this._streamFinish){
+						this._streamFinish = true;
 						dispatchEvent(new Event("NS_BUFFER_END"));
 					}
 					return this.duration;
@@ -150,7 +155,7 @@ package cc.hl.view.video.part {
 
 		protected function reset():void{
 			this._ready = false;
-			this._bufferFinish = false;
+			this._streamFinish = false;
 			this._buffering = true;
 		}
 
@@ -188,7 +193,7 @@ package cc.hl.view.video.part {
 		}
 
 		public function canSeek(seekTime:Number):Boolean{
-			return ((this._ready) && (this.bufferSeconds > seekTime) && (this.realStart <= seekTime));
+			return ((this._ready) && (this.streamSeconds > seekTime) && (this.realStart <= seekTime));
 		}
 
 		/**

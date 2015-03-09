@@ -47,7 +47,7 @@
 		**/
 		override public function seek(arg1:Number):void{
 			var local2:Number = arg1 + this._startOffset;
-			var local3:Number = bufferSeconds + this._startOffset;
+			var local3:Number = streamSeconds + this._startOffset;
 
 			local2 = local2 < local3 ? local2 : local3;
 

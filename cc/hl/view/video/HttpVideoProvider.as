@@ -1,4 +1,4 @@
-package cc.hl.view.video {
+﻿package cc.hl.view.video {
 
 	/**
 	 * 提供基于Http协议的点播视频源
@@ -6,37 +6,50 @@ package cc.hl.view.video {
 	 * @Time
 	 */
 
+    import flash.events.*;
+    import flash.net.*;
+	import flash.utils.*;
+	import flash.system.*;
+	import cc.hl.model.video.base.*;
+	import cc.hl.view.video.part.*;
+
 	public class HttpVideoProvider extends VideoProvider {
 		
 		private var nc:NetConnection;
 		private var nss:Vector.<PartNetStream>;
 		private var currentPlay:int = -1; //当前正在播放的partNetStream的索引号
 		private var currentLoad:int = -1; //当前载入的partNetStream的索引号
+		private var playOffset:Number = 0;
+        private var loadOffset:Number = 0;
 		private var checkTimer:Timer;
 
 		public function HttpVideoProvider(arg1:VideoInfo){
 			super(arg1);
+			
 			this.nc = new NetConnection();
 			this.nc.connect(null);
 			this.nss = new Vector.<PartNetStream>(_videoInfo.count);
 
 			for(var i:int = 0; i < _videoInfo.count; i++){
 				if( _videoInfo.fileType == "mp4"){
-					this.nss[i] = new MP4PartNetStream(this.nc);
+					//this.nss[i] = new MP4PartNetStream(this.nc);
 				}
 				else{
 					this.nss[i] = new FLVPartNetStream(this.nc);
 				}
+				this.nss[i].addEventListener("NS_READY", onNsReady);
 			}
 
 			this.checkTimer = new Timer(5000);
 			this.checkTimer.addEventListener(TimerEvent.TIMER, this.checkLoad);
+
 		}
 
 		/**
-		 * 重载获取当前NetStream的函数，直播只有一个，点播有多个
+		 * 重载
+		 * 获取当前NetStream的函数，直播只有一个，点播有多个
 		**/
-		override protected function get ns(){
+		override protected function get ns():NetStream{
 			return (this.nss[this.currentPlay]);
 		}
 
@@ -65,12 +78,12 @@ package cc.hl.view.video {
 		 * @param play		是否立即播放
 		 * @return 空
 		**/
-		private function load(index:int, startTime:Number, play:Boolean=false):void{
+		private function load(index:int, startTime:Number=0, play:Boolean=false):void{
 
 			if(index >=0 && index < this._videoInfo.count){
 				if(this.currentLoad != index){
 					if(this.currentLoad != -1){ //当前有正在载入的partNetStream停止载入
-						if(!this.nss[this.currentLoad].bufferFinish){
+						if(!this.nss[this.currentLoad].streamFinish){
 							this.nss[this.currentLoad].close();
 						}
 					}
@@ -81,21 +94,21 @@ package cc.hl.view.video {
 					this.currentLoad = index;
 				}
 
-				ns = this.nss[this.currentLoad];
+				var nsTmp = this.nss[this.currentLoad];
 
 				if(startTime <= 1){
 					this._videoInfo.getPartVideoInfo(function (arg1:PartVideoInfo):void{
-						ns.load(arg1, play, startTime);
+						nsTmp.load(arg1, play, startTime);
 					}, index, 0);
 				}
 				else{
 					if(this._videoInfo.useSecond){ //根据时间查找
 						this._videoInfo.getPartVideoInfo(function (arg1:PartVideoInfo):void{
-							ns.load(arg1, play, startTime);
+							nsTmp.load(arg1, play, startTime);
 						}, index, startTime);
 					}
 					else{ // 根据文件位置查找
-						if (ns.canSearchByte()) {
+						if (nsTmp.canSearchByte()) {
 
 						}
 						else{
@@ -130,7 +143,7 @@ package cc.hl.view.video {
 					this.playOffset = this.playOffset + (this._videoInfo.vtimes[i] / 1000);
 				}
 
-				this._video.attachStream(this.nss[index]);
+				this._video.attachNetStream(this.nss[index]);
 				volume = this._volume;
 			}
 
@@ -161,11 +174,11 @@ package cc.hl.view.video {
 		 *  根据缓存池状态判断是否载入下一段流
 		 *
 		**/
-		private function checkLoad():void{
+		private function checkLoad(arg1:TimerEvent):void{
 			if( this._isInit){
 				this.clearMemory();
 				//当前分段视频已载入，并且缓存池有空间或者是当前载入的就是当前播放的分段视频。
-				if(this.nss[this.currentLoad].bufferFinish 
+				if(this.nss[this.currentLoad].streamFinish 
 					&& (System.totalMemory < GlobalData.MAX_USE_MEMORY_ARRAY[PlayerConfig.getInstance().max_use_memory_level] || this.currentLoad == this.currentPlay)){
 						this.load(this.currentLoad + 1);
 				}
@@ -178,14 +191,15 @@ package cc.hl.view.video {
 			var useMemoryLevel = GlobalData.MAX_USE_MEMORY_ARRAY[PlayerConfig.getInstance().max_use_memory_level];
 			if(System.totalMemory > useMemoryLevel){
 				indexArray = [];
-				for(var i:int = 0; i < this._videoInfo.count; i++){
-					if((this.nss[i].ready && (i != this.currentLoad) && (i != this.currentPlay) && (i != this.currentPlay + 1) && (i != this.currentPlay - 1)){
+				var i:int = 0;
+				for( i = 0; i < this._videoInfo.count; i++){
+					if(this.nss[i].ready && (i != this.currentLoad) && (i != this.currentPlay) && (i != this.currentPlay + 1) && (i != this.currentPlay - 1)){
 						indexArray.push(i);
 					}
 				}
 
 				indexArray.sort(this.comparePart);
-				for(var i:int = 0; i < indexArray.length; i++){
+				for(i = 0; i < indexArray.length; i++){
 					temp = indexArray[i];
 					if(this.currentPlay > temp || this.currentLoad < temp){
 						this.nss[temp].close();
@@ -219,6 +233,23 @@ package cc.hl.view.video {
 			return 1;
 		}
 
+		override public function get buffPercent():Number{
+			if(this.nss && this.nss[this.currentPlay]){
+				//bufferLength 当前在缓冲区中的数据的数量，以秒为单位。
+				//bufferTime 通过 setBufferTime() 赋给缓冲区的秒数。
+				return this.nss[this.currentPlay].bufferLength / this.nss[this.currentPlay].bufferTime;
+			}
+			return 0;
+		}
+		override public function get streamTime():Number{
+			if (this.currentPlay > this.currentLoad) {
+				return this.playOffset + this.nss[this.currentPlay].streamSeconds;
+			}
+			return this.loadOffset + this.nss[this.currentLoad].streamSeconds;
+		}
+		override public function get buffering():Boolean{
+			return (this.nss[this.currentPlay].buffering);
+		}
 		override public function get time():Number{
 			return ((this.playOffset + this.nss[this.currentPlay].time));
 		}
@@ -231,6 +262,10 @@ package cc.hl.view.video {
 				var index = this._videoInfo.getIndexOfPosition(int(t));
 				this.switchNs(index, int(t));
 			}
+		}
+
+		override public function get videoLength():Number{
+			return (this._videoInfo.totalTime || this.nss[this.currentPlay].duration);
 		}
 	}
 }

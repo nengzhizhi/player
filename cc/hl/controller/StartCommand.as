@@ -19,7 +19,7 @@
 			this.initLayer(mainLayer);
 		}
 
-		private function initLayer(mainLayer:WebRoom) : void {
+		private function initLayer(mainLayer:Player) : void {
 			var _loc1_:Sprite = new Sprite();
 
 			GlobalData.VIDEOLAYER = _loc1_;
