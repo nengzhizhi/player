@@ -1,4 +1,4 @@
-package
+﻿package
 {
 	import flash.display.Sprite;
 	import flash.events.Event;
@@ -6,6 +6,8 @@ package
 	import flash.external.ExternalInterface;
 	import flash.display.StageScaleMode;
 	import flash.display.StageAlign;
+	import common.event.*;
+	import util.*;
 
 	public class Player extends Sprite
 	{
@@ -21,12 +23,13 @@ package
 		private var facade:MainCoreFacade;
 
 		private function _addStage(e:Event):void{
-			stage.StageScaleMode = StageScaleMode.NO_SCALE;
+			stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.align = StageAlign.TOP_LEFT;
 			stage.color = 0;
 			stage.addEventListener(Event.RESIZE, this.onResize);
 
 			GlobalData.root = this;
+			GlobalData.STAGE = stage;
 
 			var _loc2_:String = ExternalInterface.call("function getBrowser(){return navigator.userAgent;}");
 			$.jscall("console.log","浏览器类型   = " + _loc2_);
@@ -36,7 +39,7 @@ package
 			return;	
 		}
 
-		private function onResize(e:events):void{
+		private function onResize(e:Event):void{
 			EventCenter.dispatch("ResizeChange",
 			{
 				"w":stage.stageWidth,
