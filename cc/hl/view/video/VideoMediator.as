@@ -14,6 +14,7 @@
 					Order.Video_Start_Request,
 					Order.Video_Play_Request,
 					Order.Video_Pause_Request,
+					Order.Video_Seek_Request,
 					Order.On_Resize
 				];
 		}
@@ -28,6 +29,9 @@
 					break;
 				case Order.Video_Pause_Request:
 					this.videoView.provider.playing = false;
+					break;
+				case Order.Video_Seek_Request:
+					this.videoView.provider.time = notify.getBody().seekTime;
 					break;
 				case Order.On_Resize:
 					this.onResize(notify.getBody());
@@ -51,7 +55,8 @@
 
 		protected function onVideoInfoLoaded(event:Event):void{
 			var videoSeconds:Number = this.videoView.provider.videoLength;
-			sendNotification(Order.ControlBar_VideoInfo_Request, {]});
+
+			sendNotification(Order.ControlBar_VideoInfo_Request, {"videoSeconds":videoSeconds});
 		}
 
 
