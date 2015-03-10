@@ -129,6 +129,10 @@
 			return 0;
 		}
 
+        override protected function checkBufferWithMeta():Number{
+            var _local1:int = Util.bsearch(_meta.keyframes.filepositions, (bytesLoaded + (this._filesize - this.bytesTotal)));
+            return ((_meta.keyframes.times[(_local1 - 1)] - this._startOffset));
+        }		
 		override protected function onNsReady():void{
 			if ((expectStartTime == 0) && !ready){
 				realStart = 0;

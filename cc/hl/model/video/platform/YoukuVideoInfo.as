@@ -115,7 +115,6 @@
 			}
 
 			url = _urlArray[index];
-			trace(url.indexOf("&yxon=1&special=true"));
 
 			if(url.indexOf("&yxon=1&special=true") > 0){
 				loader = new BlockLoader(url);

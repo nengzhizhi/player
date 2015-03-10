@@ -27,7 +27,7 @@
 		protected var _ratioType:int = 0;//当前video的长宽比
         protected var _volume:Number = 100;
         protected var _volumeBak:Number = 100;		
-		protected var _playing:Boolean;
+		protected var _playing:Boolean = true;
 
 
 		public function VideoProvider(arg1:VideoInfo){
@@ -38,13 +38,14 @@
 			this._video.smoothing = true;
 			addChild(this._video);
 
-			//GlobalData.STAGE.addEventListener("stageVideoAvailability", this.onStageVideoAvailability);
+			GlobalData.STAGE.addEventListener(StageVideoAvailabilityEvent.STAGE_VIDEO_AVAILABILITY, onStageVideoAvailability);
 		}
 
 		protected function onNsReady(event:Event):void{
 			if (!this._isInit) {
 				this._isInit = true;
 				this._video.attachNetStream(this.ns);
+				this.resize(GlobalData.root.stage.stageWidth, GlobalData.root.stage.stageHeight);
 			}
 		}
 
@@ -57,9 +58,8 @@
 		 *
 		**/
 		protected function onStageVideoAvailability(_arg1):void{
-			//$.jscall("console.log","hardware accelerate availability: "+_arg1.availability);
-
-			//this.switchVideo(_arg1.availability == "available");
+			$.jscall("console.log","hardware accelerate availability: "+_arg1.availability);
+			this.switchVideo(_arg1.availability == "available");
 		}
 
 		/**
@@ -135,7 +135,7 @@
 			}
 
 			var _local4:Rectangle = Util.getCenterRectangle(new Rectangle(0, 0, this._width, this._height), new Rectangle(0, 0, _local2, _local3));
-				if ((this._video is StageVideo)){
+			if ((this._video is StageVideo)){
 				this._video.viewPort = _local4;
 			} else {
 				this._video.x = _local4.x;
@@ -148,7 +148,6 @@
 		public function toggleSilent(arg1:Boolean):void{
 			if(arg1){
 				this._volumeBak = ((this._volume == 0) ? 50 : this._volume);
-				this.volume
 			}
 		}
 

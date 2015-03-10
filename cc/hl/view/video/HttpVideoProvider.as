@@ -139,7 +139,7 @@
 				this.currentPlay = index;
 
 				this.playOffset = 0;
-				for(var i:int = 0;i <= index; i++){
+				for(var i:int = 1;i <= index; i++){
 					this.playOffset = this.playOffset + (this._videoInfo.vtimes[i] / 1000);
 				}
 

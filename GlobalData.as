@@ -8,7 +8,8 @@
 			super();
 		}
 
-		public static var VIDEOLAYER:Sprite;
+		public static var VIDEO_LAYER:Sprite;
+		public static var CONTROL_BAR_LAYER:Sprite;
 		public static var STAGE:Stage;
 
 		public static var root:Player;

@@ -25,8 +25,7 @@ package cc.hl.view.video {
 			youkuVideoInfo.init();
 			youkuVideoInfo.addEventListener(Event.COMPLETE,function():void{
 				var provider:VideoProvider = new HttpVideoProvider(youkuVideoInfo);
-				provider.start();
-				//provider.playing = true;
+				provider.start(0);
 				addChild(provider);
 			});
 		}
