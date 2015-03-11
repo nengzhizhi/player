@@ -1,7 +1,9 @@
 ﻿package cc.hl.view.camera {
-	
+	import flash.events.*;
+
 	import org.puremvc.as3.interfaces.*;
 	import org.puremvc.as3.patterns.mediator.*;
+	import util.*;
 
 	public class CameraMediator extends Mediator implements IMediator{
 		public function CameraMediator(obj:Object){
@@ -26,10 +28,19 @@
 			}
 		}
 
+		protected function addListener():void{
+			if(!this.cameraView.hasEventListener("CAMERA_CLICK")){
+				this.cameraView.addEventListener("CAMERA_CLICK", function(e:SkinEvent){
+					sendNotification(Order.Video_Switch_Request, {"index":e.data});
+				});
+			}
+		}
+
 		protected function onInitCamera(obj:Object) : void{
 			if(this.cameraView.parent == null){
 				GlobalData.CAMERA_LAYER.addChild(this.cameraView);
 			}
+			this.addListener();
 			this.cameraView.resize(GlobalData.root.stage.stageWidth, GlobalData.root.stage.stageHeight);
 			this.cameraView.initCamera(obj);
 		}

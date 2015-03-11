@@ -13,6 +13,7 @@ package{
 		public static var Video_Play_Request = "Video_Play_Request";
 		public static var Video_Pause_Request = "Video_Pause_Request";
 		public static var Video_Seek_Request = "Video_Seek_Request";
+		public static var Video_Switch_Request = "Video_Switch_Request";
 
 		//controlBar
 		public static var ControlBar_Show_Request = "ControlBar_Show_Request";

@@ -15,7 +15,7 @@
 		private var _providers:Array;
 		private var _videoInfos:Array;
 		private var _mainVideoIndex:int = 0;
-		private var _cameraVideoIndex:int = 0;
+		private var _cameraVideoIndex:int = -1;
 		private var _playedSeconds:Number = 0;
 		private var sendTimer:Timer;
 
@@ -60,15 +60,20 @@
 						_providers[e.target.poolIndex] = new HttpVideoProvider(_videoInfos[e.target.poolIndex]);
 					}
 					_providers[e.target.poolIndex].start(0);
+					_providers[e.target.poolIndex].volume = 0;
+					_providers[e.target.poolIndex].playing = false;
 			
 					if(e.target.poolIndex == 0){
+						_providers[e.target.poolIndex].playing = true;
 						Facade.getInstance().sendNotification(Order.ControlBar_VideoInfo_Request, 
 															{"videoSeconds":_providers[e.target.poolIndex].videoLength});
 						Facade.getInstance().sendNotification(Order.Video_Start_Request, {"index":0});
 						
 						sendTimer = new Timer(1000);
-						sendTimer.addEventListener(TimerEvent.TIMER, sendLoop);
-						sendTimer.start();					
+						sendTimer.addEventListener(TimerEvent.TIMER, sendLoop);			
+					}
+					else if(e.target.poolIndex == obj.length -1){
+						sendTimer.start();
 					}
 				});			
 			}
@@ -78,12 +83,9 @@
 			var playedSeconds:Number = this._providers[this._mainVideoIndex].time;
 			var videoSeconds:Number = this._providers[this._mainVideoIndex].videoLength;
 
-			
-			/*
 			for(var i:int = 0; i <this._videoInfos.length ; i++){
 				var streamTime:Number = this._providers[i].streamTime;
 			}
-			*/
 
 			Facade.getInstance().sendNotification(
 									Order.ControlBar_Update_Request, 
@@ -122,6 +124,10 @@
 
 		public function get cameraVideo():VideoProvider{
 			return this._providers[this._cameraVideoIndex];
+		}
+
+		public function get videoInfos():Array{
+			return this._videoInfos;
 		}
 	}
 }

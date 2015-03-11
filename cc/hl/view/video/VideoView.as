@@ -30,6 +30,8 @@
 			this.provider.playing = true;
 			addChild(this.provider);
 
+			VideoPool.getInstance().mainVideoIndex = index;
+
 			return;
 		}
 

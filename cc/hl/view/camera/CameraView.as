@@ -5,6 +5,7 @@
 	
 	import cc.hl.model.video.*;
 	
+	import util.*;
 	import ui.CameraControl;
 
 	public class CameraView extends Sprite{
@@ -34,6 +35,7 @@
 				this._cameraTitles[i] = obj[i].title;
 				this._cameraBtns[i] = new CameraBtn(i);
 				this._cameraControl.addChild(this._cameraBtns[i]);
+				
 				this._cameraBtns[i].x = this._cameraControl.switchBtn.x;
 				this._cameraBtns[i].y = this._cameraControl.switchBtn.y + 57 + i*45;
 				this._cameraBtns[i].scaleX = 0;
@@ -47,37 +49,45 @@
 		}
 
 		private function onCameraClick(e:MouseEvent):void{
-
+			dispatchEvent(new SkinEvent("CAMERA_CLICK", e.target.parent.number));
+			VideoPool.getInstance().cameraVideoIndex = -1;
+			this._cameraControl.videoBg.visible = false;
+			this._cameraBtns[i].
 		}
 
 		private function onCameraOver(e:MouseEvent):void {
 			var index:int = e.target.parent.number;
 
-			if (index != VideoPool.getInstance().mainVideoIndex && VideoPool.getInstance().providers[index] != null) {
-				Mouse.cursor="button";
-				this._cameraControl.videoBg.visible = true;
-				if(VideoPool.getInstance().cameraVideo.parent != null){
-					VideoPool.getInstance().cameraVideo.parent.removeChild(VideoPool.getInstance().cameraVideo);
+			//当非播放的机位被划过时，显示子机位
+			if (index != VideoPool.getInstance().mainVideoIndex){
+				Mouse.cursor = "button";
+				_cameraControl.videoBg.visible = true;
+
+				//切换正在播放的机位视频
+				if(index != VideoPool.getInstance().cameraVideoIndex) {
+					if( VideoPool.getInstance().cameraVideo != null 
+							&& VideoPool.getInstance().cameraVideo.parent != null){
+						VideoPool.getInstance().cameraVideo.parent.removeChild(VideoPool.getInstance().cameraVideo);
+					}
+
+					VideoPool.getInstance().cameraVideoIndex = index;
 				}
 
-				VideoPool.getInstance().cameraVideoIndex = index;		
-			}
-
-			if(VideoPool.getInstance().cameraVideo.parent == null){
 				this._cameraControl.videoBg.addChild(VideoPool.getInstance().cameraVideo);
 				VideoPool.getInstance().cameraVideo.resize(CAMERA_WIDTH, CAMERA_HEIGHT);
-				VideoPool.getInstance().cameraVideo.volume = 0;
-				VideoPool.getInstance().cameraVideo.playing = true;
+				VideoPool.getInstance().cameraVideo.x = VideoPool.getInstance().cameraVideo.y = 2;
+				VideoPool.getInstance().cameraVideo.time = VideoPool.getInstance().playedSeconds;
+				VideoPool.getInstance().cameraVideo.playing = true;		
 			}
 		}
 
 		private function onCameraOut(e:MouseEvent):void{
 			this._cameraControl.videoBg.visible = false;
-			VideoPool.getInstance().cameraVideo.playing = false;
+
+			if(VideoPool.getInstance().cameraVideo != null){
+				VideoPool.getInstance().cameraVideo.playing = false;
+			}
 		}
-
-
-
 
 		private function onSwitchBtnClicked(mouseEvent:MouseEvent) : void{
 			if(this._cameraBtnsState == "hiding"){

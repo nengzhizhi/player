@@ -29,29 +29,22 @@
 			//sendNotification(Order.Video_Start_Request, {"vid":"XODg1OTc2MzUy", "videoType":"youku", "startTime":0});
 			var videoObj = [
 				{
-					"vid" : "XODg1OTc2MzUy",
+					"vid" : "XODg4OTcyMDc2",
 					"videoType" : "youku",
-					"startTime" : 0
+					"startTime" : 0,
+					"title" : "机位一"
 				},
 				{
 					"vid" : "XOTA5MjQ0NTc2",
 					"videoType" : "youku",
-					"startTime" : 0
+					"startTime" : 0,
+					"title" : "机位二"
 				}
 			];
 			VideoPool.getInstance().load(videoObj);
 			sendNotification(Order.ControlBar_Show_Request, null);
 			sendNotification(Order.Danmu_Init_Request, null);
-
-			var cameraObj = [
-				{
-					"title" : "机位一"
-				},
-				{
-					"title" : "机位二"
-				}
-			];
-			sendNotification(Order.Camera_Init_Request, cameraObj);
+			sendNotification(Order.Camera_Init_Request, videoObj);
 		}
 
 		private function initLayer(mainLayer:Player) : void {
