@@ -1,4 +1,4 @@
-﻿package cc.hl.view.video {
+﻿package cc.hl.model.video {
 	import flash.geom.*;
     import flash.events.*;
     import flash.display.*;

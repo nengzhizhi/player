@@ -11,6 +11,7 @@
 		public static var VIDEO_LAYER:Sprite;
 		public static var CONTROL_BAR_LAYER:Sprite;
 		public static var DANMU_LAYER:Sprite;
+		public static var CAMERA_LAYER:Sprite;
 		public static var STAGE:Stage;
 
 		public static var root:Player;

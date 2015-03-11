@@ -15,11 +15,13 @@
 		protected var _urlArray:Array;
 		protected var _vtimems:Array;
 		protected var _disableSeekJump:Boolean = false;
+		protected var _poolIndex:int = 0;
 
 
-		public function VideoInfo(videoId:String, videoType:String){
+		public function VideoInfo(videoId:String, videoType:String, index:int){
 			this._vid = videoId;
 			this._type = videoType;
+			this._poolIndex = index;
 		}
 
 
@@ -89,6 +91,14 @@
 		}
 		public function get disableSeekJump():Boolean{
 			return (this._disableSeekJump);
-		}		
+		}
+
+		public function get poolIndex():int {
+			return this._poolIndex;
+		}
+
+		public function set poolIndex(index:int):void{
+			this._poolIndex = index;
+		}
 	}
 }

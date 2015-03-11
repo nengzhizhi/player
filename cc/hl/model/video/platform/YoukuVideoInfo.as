@@ -25,10 +25,10 @@
 		private var _bakUrls:Array;//备用urls，此处不用
 		private var _bakTimes:Array;//备用times
 
-		public function YoukuVideoInfo(videoId:String=null){
+		public function YoukuVideoInfo(videoId:String,index:int){
 			this._bakUrls = [];
 			this._bakTimes = [];
-			super(videoId, VideoType.YOUKU);
+			super(videoId, VideoType.YOUKU, index);
 			this._useSecond = true;
 		}
 

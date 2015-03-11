@@ -24,5 +24,8 @@ package{
 		public static var Danmu_Show_Request = "Danmu_Show_Request";
 		public static var Danmu_Hide_Request = "Danmu_Hide_Request";
 		public static var Danmu_Add_Request = "Danmu_Add_Request";
+
+		//camera
+		public static var Camera_Init_Request = "Camera_Init_Request";
 	}
 }

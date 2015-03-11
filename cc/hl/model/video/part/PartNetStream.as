@@ -9,7 +9,7 @@
  *
 **/
 
-package cc.hl.view.video.part {
+package cc.hl.model.video.part {
 	
     import flash.events.*;
     import flash.net.*;

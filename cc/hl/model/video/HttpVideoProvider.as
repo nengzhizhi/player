@@ -1,4 +1,4 @@
-﻿package cc.hl.view.video {
+﻿package cc.hl.model.video {
 
 	/**
 	 * 提供基于Http协议的点播视频源
@@ -11,7 +11,7 @@
 	import flash.utils.*;
 	import flash.system.*;
 	import cc.hl.model.video.base.*;
-	import cc.hl.view.video.part.*;
+	import cc.hl.model.video.part.*;
 
 	public class HttpVideoProvider extends VideoProvider {
 		

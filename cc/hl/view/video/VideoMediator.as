@@ -6,7 +6,6 @@
 	public class VideoMediator extends Mediator implements IMediator{
 		public function VideoMediator(obj:Object){
 			super("VideoMediator", obj);
-			this.addListener();
 		}
 
 		override public function listNotificationInterests() : Array {
@@ -39,32 +38,11 @@
 			}
 		}
 
-		private function addListener():void{
-			if(!this.videoView.hasEventListener("VIDEO_LOOP")){
-				this.videoView.addEventListener("VIDEO_LOOP", this.onLoop);
-				this.videoView.addEventListener("VIDEO_INFO_LOADED", this.onVideoInfoLoaded);
-			}
-		}
-
-		protected function onLoop(event:Event) : void {
-			var playedSeconds:Number = this.videoView.provider.time;
-			var videoSeconds:Number = this.videoView.provider.videoLength;
-
-			sendNotification(Order.ControlBar_Update_Request, {"playedSeconds":playedSeconds, "videoSeconds":videoSeconds});			
-		}
-
-		protected function onVideoInfoLoaded(event:Event):void{
-			var videoSeconds:Number = this.videoView.provider.videoLength;
-
-			sendNotification(Order.ControlBar_VideoInfo_Request, {"videoSeconds":videoSeconds});
-		}
-
-
 		protected function onStartVideo(obj:Object) : void {
 			if(this.videoView.parent == null){
 				GlobalData.VIDEO_LAYER.addChild(this.videoView);
 			}
-			this.videoView.startVideo(obj.vid, obj.videoType ,obj.startTime);
+			this.videoView.setProvider(obj.index);
 		}
 
 		protected function onResize(obj:Object):void{

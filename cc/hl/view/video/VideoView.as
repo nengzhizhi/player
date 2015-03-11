@@ -7,55 +7,46 @@
 	
 	import cc.hl.model.video.base.*;
 	import cc.hl.model.video.platform.*;
+	import cc.hl.model.video.*;
 	
-
 	public class VideoView extends Sprite {
+		private var _providerIndex:int;
 
-		private var _provider:VideoProvider;
-		private var _videoInfo;
-		private var sendTimer:Timer;
+		public function VideoView(){
+			super();
+		}
 
-		public function VideoView(){}
+		public function setProvider(index:int):void{
 
-
-		public function startVideo(vid:String, videoType:String, startTime:Number=0):void{
-			switch(videoType){
-				case VideoType.YOUKU:
-					this._videoInfo = new YoukuVideoInfo(vid);
-					this._videoInfo.init();
-				break;
+			if(this._providerIndex != index){
+				if(this.provider != null) {
+					this.provider.playing = false;
+					this.provider.parent.removeChild(this.provider);
+				}
 			}
 
-			this._videoInfo.addEventListener(Event.COMPLETE, function(e:Event):void{
-				var arguments:* = arguments;
-				_videoInfo.removeEventListener(Event.COMPLETE, arguments.callee);
-				if (_videoInfo.fileType == "live"){
-					_provider = null;
-				}
-				else{
-					_provider = new HttpVideoProvider(_videoInfo);
-				}
-				_provider.start(startTime);
-				addChild(_provider);
+			this._providerIndex = index;
+			this.provider.time = VideoPool.getInstance().playedSeconds;
+			this.provider.playing = true;
+			addChild(this.provider);
 
-				sendTimer = new Timer(500);
-				sendTimer.addEventListener(TimerEvent.TIMER, sendLoop);
-				sendTimer.start();
-
-				dispatchEvent(new Event("VIDEO_INFO_LOADED"));
-			});
-		}
-
-		private function sendLoop(event:TimerEvent=null):void{
-			dispatchEvent(new Event("VIDEO_LOOP"));
-		}
-
-		public function get provider():VideoProvider{
-			return this._provider;
+			return;
 		}
 
 		public function resize(w:Number, h:Number):void{
-			this._provider.resize(w, h);
+			this.provider.resize(w, h);
 		}
-	}	
+
+		public function get provider():VideoProvider{
+			return VideoPool.getInstance().providers[this._providerIndex];
+		}
+
+		public function set providerIndex(index:int):void{
+			this._providerIndex = index;
+		}
+
+		public function get providerIndex():int{
+			return this._providerIndex;
+		}	
+	}
 }
