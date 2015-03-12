@@ -50,14 +50,12 @@
 
 		private function onCameraClick(e:MouseEvent):void{
 			dispatchEvent(new SkinEvent("CAMERA_CLICK", e.target.parent.number));
-			VideoPool.getInstance().cameraVideoIndex = -1;
-			this._cameraControl.videoBg.visible = false;
-			this._cameraBtns[i].
 		}
 
 		private function onCameraOver(e:MouseEvent):void {
 			var index:int = e.target.parent.number;
 
+			/*
 			//当非播放的机位被划过时，显示子机位
 			if (index != VideoPool.getInstance().mainVideoIndex){
 				Mouse.cursor = "button";
@@ -79,14 +77,11 @@
 				VideoPool.getInstance().cameraVideo.time = VideoPool.getInstance().playedSeconds;
 				VideoPool.getInstance().cameraVideo.playing = true;		
 			}
+			*/
 		}
 
 		private function onCameraOut(e:MouseEvent):void{
 			this._cameraControl.videoBg.visible = false;
-
-			if(VideoPool.getInstance().cameraVideo != null){
-				VideoPool.getInstance().cameraVideo.playing = false;
-			}
 		}
 
 		private function onSwitchBtnClicked(mouseEvent:MouseEvent) : void{

@@ -29,7 +29,7 @@
 			//sendNotification(Order.Video_Start_Request, {"vid":"XODg1OTc2MzUy", "videoType":"youku", "startTime":0});
 			var videoObj = [
 				{
-					"vid" : "XODg4OTcyMDc2",
+					"vid" : "XODg5NDU5MzA0",
 					"videoType" : "youku",
 					"startTime" : 0,
 					"title" : "机位一"

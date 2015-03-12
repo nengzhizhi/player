@@ -127,6 +127,9 @@
 				return;
 			}
 
+			//trace("currentPlay = " + this.currentPlay);
+			//trace("index = " + index);
+
 			if(this.currentPlay != index){
 				//停止当前正在播放码流
 				if(this.currentPlay != -1){
@@ -143,6 +146,8 @@
 					this.playOffset = this.playOffset + (this._videoInfo.vtimes[i] / 1000);
 				}
 
+				//trace("playOffset = " + this.playOffset);
+
 				this._video.attachNetStream(this.nss[index]);
 				volume = this._volume;
 			}
@@ -153,6 +158,9 @@
 			if(this._videoInfo.disableSeekJump){
 				if(partNetStream.ready){ //全部载入成功可以自由缓存
 					partNetStream.seek(startTime);
+					if(this._playing){
+						partNetStream.resume();
+					}
 				} else { //否则从头开始播放
 					this.load(index, 0, _playing);
 				}
@@ -178,8 +186,9 @@
 			if( this._isInit){
 				this.clearMemory();
 				//当前分段视频已载入，并且缓存池有空间或者是当前载入的就是当前播放的分段视频。
-				if(this.nss[this.currentLoad].streamFinish 
-					&& (System.totalMemory < GlobalData.MAX_USE_MEMORY_ARRAY[PlayerConfig.getInstance().max_use_memory_level] || this.currentLoad == this.currentPlay)){
+				if( this.nss[this.currentLoad].streamFinish 
+					&& ( System.totalMemory < GlobalData.MAX_USE_MEMORY_ARRAY[PlayerConfig.getInstance().max_use_memory_level]
+						 || this.currentLoad == this.currentPlay)){
 						this.load(this.currentLoad + 1);
 				}
 			}
@@ -255,12 +264,13 @@
 		}
 
 		override public function set time(t:Number):void{
+			var pos:Array;
 			if(this._videoInfo.count == 1){
 				this.switchNs(0, int(t));
 			}
 			else{
-				var index = this._videoInfo.getIndexOfPosition(int(t));
-				this.switchNs(index, int(t));
+				pos = this._videoInfo.getIndexOfPosition(int(t));
+				this.switchNs(pos[0], pos[1]);
 			}
 		}
 

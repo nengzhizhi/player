@@ -15,7 +15,6 @@
 		private var _providers:Array;
 		private var _videoInfos:Array;
 		private var _mainVideoIndex:int = 0;
-		private var _cameraVideoIndex:int = -1;
 		private var _playedSeconds:Number = 0;
 		private var sendTimer:Timer;
 
@@ -49,6 +48,8 @@
 						this._videoInfos[i].init();
 					break;
 				}
+
+				//每一个VideoInfo收到Event.COMPLETE的顺序不同
 				this._videoInfos[i].addEventListener(Event.COMPLETE, function(e:Event):void{
 					var arguments:* = arguments;
 					_videoInfos[e.target.poolIndex].removeEventListener(Event.COMPLETE, arguments.callee);
@@ -63,17 +64,17 @@
 					_providers[e.target.poolIndex].volume = 0;
 					_providers[e.target.poolIndex].playing = false;
 			
+
+					
 					if(e.target.poolIndex == 0){
 						_providers[e.target.poolIndex].playing = true;
 						Facade.getInstance().sendNotification(Order.ControlBar_VideoInfo_Request, 
-															{"videoSeconds":_providers[e.target.poolIndex].videoLength});
+												{"videoSeconds":_providers[e.target.poolIndex].videoLength});
 						Facade.getInstance().sendNotification(Order.Video_Start_Request, {"index":0});
 						
 						sendTimer = new Timer(1000);
-						sendTimer.addEventListener(TimerEvent.TIMER, sendLoop);			
-					}
-					else if(e.target.poolIndex == obj.length -1){
-						sendTimer.start();
+						sendTimer.addEventListener(TimerEvent.TIMER, sendLoop);
+						sendTimer.start();		
 					}
 				});			
 			}
@@ -87,10 +88,9 @@
 				var streamTime:Number = this._providers[i].streamTime;
 			}
 
-			Facade.getInstance().sendNotification(
-									Order.ControlBar_Update_Request, 
-									{ "playedSeconds":playedSeconds, "videoSeconds":videoSeconds }
-								);
+			Facade.getInstance().sendNotification(Order.ControlBar_Update_Request, 
+									{ "playedSeconds":playedSeconds, "videoSeconds":videoSeconds });
+
 			this.playedSeconds = playedSeconds;
 		}
 
@@ -112,18 +112,6 @@
 
 		public function get mainVideoIndex():int{
 			return this._mainVideoIndex;
-		}
-
-		public function get cameraVideoIndex():int{
-			return this._cameraVideoIndex;
-		}
-
-		public function set cameraVideoIndex(index:int):void{
-			this._cameraVideoIndex = index;
-		}
-
-		public function get cameraVideo():VideoProvider{
-			return this._providers[this._cameraVideoIndex];
 		}
 
 		public function get videoInfos():Array{
